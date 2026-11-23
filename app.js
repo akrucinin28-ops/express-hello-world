@@ -106,6 +106,36 @@ app.get("/bot-route-test", async (req, res) => {
 });
 
 
+app.get("/bot-id-test", async (req, res) => {
+  const token = process.env.BOT_TOKEN;
+  if (!token || !token.includes(":")) {
+    return res.status(500).json({ error: "Invalid token format" });
+  }
+
+  const botId = token.split(":")[0];
+  const fakeToken = `${botId}:INVALID_SECRET_FOR_TEST`;
+
+  try {
+    const response = await fetch(
+      `https://api.telegram.org/bot${fakeToken}/getMe`,
+      { signal: AbortSignal.timeout(12000) }
+    );
+
+    const data = await response.json();
+
+    res.json({
+      http_status: response.status,
+      error_code: data.error_code || null
+    });
+  } catch (error) {
+    res.json({
+      error: error.name,
+      cause: error.cause?.code || null
+    });
+  }
+});
+
+
 app.listen(port, "0.0.0.0", () => {
   console.log(`ISPEEG Robux running on port ${port}`);
 });
