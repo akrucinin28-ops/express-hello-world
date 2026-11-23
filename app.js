@@ -37,11 +37,17 @@ app.get("/telegram-test", async (req, res) => {
       description: result.ok ? null : result.description,
       retry_after: result.parameters?.retry_after || null
     });
-  } catch {
-    res.status(500).json({
-      error: "Telegram connection failed"
-    });
-  }
+
+} catch (error) {
+  console.error("Telegram connection:", error.message);
+
+  res.status(500).json({
+    error: "Telegram connection failed",
+    reason: error.name,
+    cause: error.cause?.code || null
+  });
+}
+
 });
 
 app.listen(port, "0.0.0.0", () => {
