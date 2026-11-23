@@ -50,6 +50,39 @@ app.get("/telegram-test", async (req, res) => {
 
 });
 
+
+app.get("/network-test", async (req, res) => {
+  const targets = {
+    telegram: "https://api.telegram.org",
+    google: "https://www.google.com"
+  };
+
+  const results = {};
+
+  for (const [name, url] of Object.entries(targets)) {
+    const start = Date.now();
+
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(8000)
+      });
+
+      results[name] = {
+        status: response.status,
+        milliseconds: Date.now() - start
+      };
+    } catch (error) {
+      results[name] = {
+        error: error.name,
+        cause: error.cause?.code || null
+      };
+    }
+  }
+
+  res.json(results);
+});
+
+
 app.listen(port, "0.0.0.0", () => {
   console.log(`ISPEEG Robux running on port ${port}`);
 });
