@@ -83,6 +83,29 @@ app.get("/network-test", async (req, res) => {
 });
 
 
+app.get("/bot-route-test", async (req, res) => {
+  try {
+    const response = await fetch(
+      "https://api.telegram.org/bot000000000:INVALID_TEST_TOKEN/getMe",
+      { signal: AbortSignal.timeout(10000) }
+    );
+
+    const data = await response.json();
+
+    res.json({
+      http_status: response.status,
+      telegram_ok: data.ok,
+      error_code: data.error_code || null
+    });
+  } catch (error) {
+    res.json({
+      error: error.name,
+      cause: error.cause?.code || null
+    });
+  }
+});
+
+
 app.listen(port, "0.0.0.0", () => {
   console.log(`ISPEEG Robux running on port ${port}`);
 });
